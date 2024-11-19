@@ -2,6 +2,7 @@ import './App.css'
 import {useEffect, useState} from "react";
 import UserInput from "@/components/userInput.tsx";
 import RoomInput from "@/components/ui/roomInput.tsx";
+import {ChatUi} from "@/components/chat-ui.tsx";
 
 type Message = {
   type: "chat" | "system"
@@ -106,6 +107,7 @@ function App() {
           ))}
         </div>
       </div>
+      <ChatUi />
     </div>
   );
 }
