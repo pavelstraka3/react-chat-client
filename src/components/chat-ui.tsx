@@ -1,25 +1,26 @@
-import { useState } from 'react'
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import {useState} from 'react'
+import {Input} from "@/components/ui/input"
+import {Button} from "@/components/ui/button"
+import {ScrollArea} from "@/components/ui/scroll-area"
+import {Message} from "@/App.tsx";
 
-export function ChatUi() {
+type Props = {
+  messages: Message[],
+  user: string
+  sendMessage: (message: string) => void;
+}
+
+export function ChatUi({messages, user, sendMessage}: Props) {
   const [selectedRoom, setSelectedRoom] = useState('general')
   const [message, setMessage] = useState('')
-  
+
   // Mock data for rooms and messages
   const rooms = ['general', 'random', 'support']
-  const messages = [
-    { id: 1, room: 'general', sender: 'Alice', content: 'Hello everyone!' },
-    { id: 2, room: 'general', sender: 'Bob', content: 'Hi Alice, how are you?' },
-    { id: 3, room: 'general', sender: 'You', content: 'Hey folks, what\'s up?' },
-    { id: 4, room: 'general', sender: 'Alice', content: 'Not much, just chatting here.' },
-  ]
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault()
     // Here you would typically send the message to your backend
-    console.log('Sending message:', message)
+    sendMessage(message)
     setMessage('')
   }
 
@@ -50,24 +51,24 @@ export function ChatUi() {
         <div className="p-4 border-b border-gray-200">
           <h1 className="text-xl font-semibold">#{selectedRoom}</h1>
         </div>
-        
+
         {/* Messages */}
         <ScrollArea className="flex-1 p-4">
           {messages.filter(m => m.room === selectedRoom).map((msg) => (
             <div
               key={msg.id}
               className={`mb-4 ${
-                msg.sender === 'You' ? 'text-right' : 'text-left'
+                msg.sender === user ? 'text-right' : msg.sender === 'system' ? 'text-center' : 'text-left'
               }`}
             >
               <div
                 className={`inline-block p-2 rounded-lg ${
-                  msg.sender === 'You'
+                  msg.sender === user
                     ? 'bg-blue-500 text-white'
-                    : 'bg-gray-200 text-gray-800'
+                    : msg.sender === 'system' ? 'bg-gray-100 text-gray-800' : 'bg-gray-200 text-gray-800'
                 }`}
               >
-                <p className="font-semibold">{msg.sender}</p>
+                {msg.sender !== "system" && <p className="font-semibold">{msg.sender}</p>}
                 <p>{msg.content}</p>
               </div>
             </div>

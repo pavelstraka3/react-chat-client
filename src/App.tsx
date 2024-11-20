@@ -4,13 +4,16 @@ import UserInput from "@/components/userInput.tsx";
 import RoomInput from "@/components/ui/roomInput.tsx";
 import {ChatUi} from "@/components/chat-ui.tsx";
 
-type Message = {
+export type Message = {
   type: "chat" | "system"
-  content: string
+  content: string,
+  sender: string,
+  id: string,
+  room: string
 }
 
 function App() {
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [username, setUsername] = useState('');
@@ -31,7 +34,8 @@ function App() {
       const message: Message = JSON.parse(event.data);
 
       if (message.type === "chat") {
-        setMessages(prevMessages => [...prevMessages, message.content]);
+        message.room = "general"
+        setMessages(prevMessages => [...prevMessages, message]);
       }
     }
 
@@ -53,8 +57,6 @@ function App() {
   }, [username]);
 
   const sendMessage = (message: string) => {
-    console.log("Sending message: ", message);
-    console.log("WebSocket: ", ws);
     if (ws && message) {
       ws.send(message);
     }
@@ -98,16 +100,7 @@ function App() {
           <button onClick={() => handleSendMessage(inputMessage)}>Send</button>
         </div>
       )}
-
-      <div>
-        <h2>Messages</h2>
-        <div>
-          {messages.map((msg, index) => (
-            <p key={index}>{msg}</p>
-          ))}
-        </div>
-      </div>
-      <ChatUi />
+      <ChatUi messages={messages} user={username} sendMessage={handleSendMessage}/>
     </div>
   );
 }
