@@ -8,26 +8,14 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { createFileRoute } from '@tanstack/react-router'
-
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as LoginImport } from './routes/login'
-import { Route as AuthenticatedImport } from './routes/_authenticated'
-import { Route as IndexImport } from './routes/index'
-
-// Create Virtual Routes
-
-const AboutLazyImport = createFileRoute('/about')()
+import { Route as AuthenticatedImport } from './routes/authenticated'
+import { Route as AuthenticatedIndexImport } from './routes/_authenticated/index'
 
 // Create/Update Routes
-
-const AboutLazyRoute = AboutLazyImport.update({
-  id: '/about',
-  path: '/about',
-  getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/about.lazy').then((d) => d.Route))
 
 const LoginRoute = LoginImport.update({
   id: '/login',
@@ -36,12 +24,13 @@ const LoginRoute = LoginImport.update({
 } as any)
 
 const AuthenticatedRoute = AuthenticatedImport.update({
-  id: '/_authenticated',
+  id: '/authenticated',
+  path: '/authenticated',
   getParentRoute: () => rootRoute,
 } as any)
 
-const IndexRoute = IndexImport.update({
-  id: '/',
+const AuthenticatedIndexRoute = AuthenticatedIndexImport.update({
+  id: '/_authenticated/',
   path: '/',
   getParentRoute: () => rootRoute,
 } as any)
@@ -50,17 +39,10 @@ const IndexRoute = IndexImport.update({
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/_authenticated': {
-      id: '/_authenticated'
-      path: ''
-      fullPath: ''
+    '/authenticated': {
+      id: '/authenticated'
+      path: '/authenticated'
+      fullPath: '/authenticated'
       preLoaderRoute: typeof AuthenticatedImport
       parentRoute: typeof rootRoute
     }
@@ -71,11 +53,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginImport
       parentRoute: typeof rootRoute
     }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutLazyImport
+    '/_authenticated/': {
+      id: '/_authenticated/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedIndexImport
       parentRoute: typeof rootRoute
     }
   }
@@ -84,48 +66,43 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '': typeof AuthenticatedRoute
+  '/authenticated': typeof AuthenticatedRoute
   '/login': typeof LoginRoute
-  '/about': typeof AboutLazyRoute
+  '/': typeof AuthenticatedIndexRoute
 }
 
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '': typeof AuthenticatedRoute
+  '/authenticated': typeof AuthenticatedRoute
   '/login': typeof LoginRoute
-  '/about': typeof AboutLazyRoute
+  '/': typeof AuthenticatedIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
-  '/': typeof IndexRoute
-  '/_authenticated': typeof AuthenticatedRoute
+  '/authenticated': typeof AuthenticatedRoute
   '/login': typeof LoginRoute
-  '/about': typeof AboutLazyRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '' | '/login' | '/about'
+  fullPaths: '/authenticated' | '/login' | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '' | '/login' | '/about'
-  id: '__root__' | '/' | '/_authenticated' | '/login' | '/about'
+  to: '/authenticated' | '/login' | '/'
+  id: '__root__' | '/authenticated' | '/login' | '/_authenticated/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRoute
   LoginRoute: typeof LoginRoute
-  AboutLazyRoute: typeof AboutLazyRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRoute,
   LoginRoute: LoginRoute,
-  AboutLazyRoute: AboutLazyRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -138,23 +115,19 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/",
-        "/_authenticated",
+        "/authenticated",
         "/login",
-        "/about"
+        "/_authenticated/"
       ]
     },
-    "/": {
-      "filePath": "index.tsx"
-    },
-    "/_authenticated": {
-      "filePath": "_authenticated.tsx"
+    "/authenticated": {
+      "filePath": "authenticated.tsx"
     },
     "/login": {
       "filePath": "login.tsx"
     },
-    "/about": {
-      "filePath": "about.lazy.tsx"
+    "/_authenticated/": {
+      "filePath": "_authenticated/index.tsx"
     }
   }
 }

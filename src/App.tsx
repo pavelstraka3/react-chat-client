@@ -1,20 +1,13 @@
-import {AuthProvider, useAuth} from "@/auth/auth.tsx";
-import {createRouter, RouterProvider} from "@tanstack/react-router";
-import {routeTree} from "@/routeTree.gen.ts";
+import { useAuth } from "@/auth/auth.tsx";
+import { createRouter, RouterProvider } from "@tanstack/react-router";
+import { routeTree } from "@/routeTree.gen.ts";
 
-const router = createRouter({ routeTree, context: { auth: {isAuthenticated: false, token: ""} } });
-
-function InnerApp() {
-  const auth = useAuth();
-  return <RouterProvider router={router} context={{ auth }} />
-}
+const router = createRouter({ routeTree, context: undefined! });
 
 function App() {
-  return (
-    <AuthProvider>
-      <InnerApp />
-    </AuthProvider>
-  );
+  const auth = useAuth();
+
+  return <RouterProvider router={router} context={{ auth }} />;
 }
 
 export default App;
