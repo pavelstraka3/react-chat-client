@@ -21,7 +21,7 @@ export default function LoginComponent() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
-  const navigate = useNavigate({ from: "/login" });
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,17 +30,21 @@ export default function LoginComponent() {
 
     try {
       if (username && password) {
+        // Call the login function and wait for the result
         const errorMessage = await login({ username, password });
+
         if (errorMessage) {
+          // If there's an error, set it to the state
           setError(errorMessage);
         } else {
-          navigate({ to: "/" });
+          // Once login is successful, navigate to home page
+          navigate({ to: "/" }); // Use the correct path here for redirection
         }
       }
     } catch (err) {
       setError("An error occurred. Please try again.");
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Stop the loading state after the operation
     }
   };
 
@@ -57,7 +61,7 @@ export default function LoginComponent() {
           <CardContent>
             <div className="grid w-full items-center gap-4">
               <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="username">Username</Label>
                 <Input
                   id="username"
                   type="text"

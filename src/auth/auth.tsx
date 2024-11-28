@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useState } from "react";
+import {createContext, ReactNode, useContext, useEffect, useState} from "react";
 
 export type AuthContextType = {
   isAuthenticated: boolean;
@@ -11,6 +11,7 @@ export type AuthContextType = {
     password: string;
   }) => Promise<string | null>;
   logout: () => void;
+  username?: string;
 };
 
 export type LoginResponse = {
@@ -22,6 +23,18 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState("");
+  const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    const storedUsername = localStorage.getItem("username");
+
+    if (storedToken && storedUsername) {
+      setToken(storedToken);
+      setUsername(storedUsername);
+      setIsAuthenticated(true);
+    }
+  }, []);
 
   const login = async ({
     username,
@@ -47,14 +60,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return "Something went wrong";
     }
 
+    // Directly set all states to trigger rerender
     setToken(data.token);
+    setUsername(username);
     setIsAuthenticated(true);
+
+    // Optionally store the token in localStorage to persist the session
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("username", username);
     return null;
   };
-  const logout = () => setIsAuthenticated(false);
+
+  const logout = () => {
+    setIsAuthenticated(false);
+    setToken("");
+    setUsername("");
+
+    // Clear from localStorage
+    localStorage.removeItem("token");
+  };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, token, login, logout }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, token, login, logout, username }}
+    >
       {children}
     </AuthContext.Provider>
   );

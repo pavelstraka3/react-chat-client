@@ -1,108 +1,52 @@
-import './App.css'
-import {useEffect, useState} from "react";
-import UserInput from "@/components/userInput.tsx";
-import RoomInput from "@/components/ui/roomInput.tsx";
-import {ChatUi} from "@/components/chat-ui.tsx";
-
-export type Message = {
-  type: "chat" | "system"
-  content: string,
-  sender: string,
-  id: string,
-  room: string
-}
+import { useEffect, useMemo, useState } from "react";
+import { ChatUi } from "@/components/chat-ui.tsx";
+import useWebSocket from "@/hooks/useWebSocket.tsx";
+import { useAuth } from "@/auth/auth.tsx";
+import { Message } from "@/lib/types.ts";
 
 function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [inputMessage, setInputMessage] = useState('');
-  const [ws, setWs] = useState<WebSocket | null>(null);
-  const [username, setUsername] = useState('');
-  const [room, setRoom] = useState('');
 
   useEffect(() => {
-    const socket = new WebSocket("ws://localhost:8090/ws");
+    console.log(messages);
+  }, [messages]);
 
-    socket.onopen = () => {
-      console.log("Websocket connection established");
+  const { username, token } = useAuth();
 
-      if (username) {
-        socket.send(username);
-      }
-    }
+  const socketUrl = useMemo(
+    () => `ws://localhost:8090/ws?token=${token}`,
+    [token],
+  );
 
-    socket.onmessage = (event) => {
-      const message: Message = JSON.parse(event.data);
+  const handleIncomingMessage = (message: Message) => {
+    setMessages((prevMessages) => [...prevMessages, message]);
+  };
 
-      if (message.type === "chat") {
-        message.room = "general"
-        setMessages(prevMessages => [...prevMessages, message]);
-      }
-    }
+  const { isConnected, sendMessage, joinRoom } = useWebSocket({
+    url: socketUrl,
+    onMessageRecieved: handleIncomingMessage,
+  });
 
-    socket.onclose = () => {
-      console.log("Websocket connection closed");
-    }
+  const handleSendMessage = (message: Partial<Message>) => {
+    sendMessage(message);
+  };
 
-    socket.onerror = (error) => {
-      console.log("Websocket error: ", error);
-    }
-
-    setWs(socket);
-
-    return () => {
-      if (socket) {
-        socket.close();
-      }
-    }
-  }, [username]);
-
-  const sendMessage = (message: string) => {
-    if (ws && message) {
-      ws.send(message);
-    }
+  const handleChangeRoom = (room: string) => {
+    joinRoom(room);
   }
 
-  const handleRoomSubmit = (rm: string) => {
-    setRoom(rm);
-    if (ws) {
-      sendMessage(`/join ${rm}`);
-    }
-  }
-
-  const handleSendMessage = (message: string) => {
-    if (ws && message) {
-      sendMessage(message);
-    }
-  }
-
-  const handleUsernameSubmit = (usr: string) => {
-    console.log("Username submitted: ", usr);
-    setUsername(usr);
-    if (ws) {
-      sendMessage(usr);
-    }
+  if (!username || !isConnected) {
+    return <div>Loading...</div>;
   }
 
   return (
-    <div>
-      <h1>WebSocket Chat</h1>
-      {!username ? (
-        <UserInput handleUsernameSubmit={handleUsernameSubmit}/>
-      ) : !room ? (
-        <RoomInput handleRoomSubmit={handleRoomSubmit}/>
-      ) : (
-        <div>
-          <input
-            type="text"
-            placeholder="Type a message"
-            onChange={(e) => setInputMessage(e.target.value)}
-          />
-          <button onClick={() => handleSendMessage(inputMessage)}>Send</button>
-        </div>
-      )}
-      <ChatUi messages={messages} user={username} sendMessage={handleSendMessage}/>
-    </div>
+    <ChatUi
+      messages={messages}
+      user={username}
+      sendMessage={handleSendMessage}
+      onChangeRoom={handleChangeRoom}
+    />
   );
 }
 
-export default Chat
+export default Chat;

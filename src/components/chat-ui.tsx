@@ -1,27 +1,32 @@
-import {useState} from 'react'
-import {Input} from "@/components/ui/input"
-import {Button} from "@/components/ui/button"
-import {ScrollArea} from "@/components/ui/scroll-area"
-import {Message} from "@/App.tsx";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Message } from "@/lib/types.ts";
 
 type Props = {
-  messages: Message[],
-  user: string
-  sendMessage: (message: string) => void;
-}
+  messages: Message[];
+  user: string;
+  sendMessage: (message: Partial<Message>) => void;
+  onChangeRoom: (room: string) => void;
+};
 
-export function ChatUi({messages, user, sendMessage}: Props) {
-  const [selectedRoom, setSelectedRoom] = useState('general')
-  const [message, setMessage] = useState('')
+export function ChatUi({ messages, user, sendMessage, onChangeRoom }: Props) {
+  const [selectedRoom, setSelectedRoom] = useState("general");
+  const [message, setMessage] = useState("");
 
-  // Mock data for rooms and messages
-  const rooms = ['general', 'random', 'support']
+  const rooms = ["general", "random", "support"];
 
   const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // Here you would typically send the message to your backend
-    sendMessage(message)
-    setMessage('')
+    sendMessage({content: message, room: selectedRoom, sender: user, type: "regular"});
+    setMessage("");
+  };
+
+  const handleChangeRoom = (room: string) => {
+    setSelectedRoom(room);
+    onChangeRoom(room);
   }
 
   return (
@@ -36,7 +41,7 @@ export function ChatUi({messages, user, sendMessage}: Props) {
                 <Button
                   variant={selectedRoom === room ? "default" : "ghost"}
                   className="w-full justify-start mb-2"
-                  onClick={() => setSelectedRoom(room)}
+                  onClick={() => handleChangeRoom(room)}
                 >
                   # {room}
                 </Button>
@@ -54,29 +59,42 @@ export function ChatUi({messages, user, sendMessage}: Props) {
 
         {/* Messages */}
         <ScrollArea className="flex-1 p-4">
-          {messages.filter(m => m.room === selectedRoom).map((msg) => (
-            <div
-              key={msg.id}
-              className={`mb-4 ${
-                msg.sender === user ? 'text-right' : msg.sender === 'system' ? 'text-center' : 'text-left'
-              }`}
-            >
+          {messages
+            .filter((m) => m.room === selectedRoom)
+            .map((msg) => (
               <div
-                className={`inline-block p-2 rounded-lg ${
+                key={msg.id}
+                className={`mb-4 ${
                   msg.sender === user
-                    ? 'bg-blue-500 text-white'
-                    : msg.sender === 'system' ? 'bg-gray-100 text-gray-800' : 'bg-gray-200 text-gray-800'
+                    ? "text-right"
+                    : msg.sender === "system"
+                      ? "text-center"
+                      : "text-left"
                 }`}
               >
-                {msg.sender !== "system" && <p className="font-semibold">{msg.sender}</p>}
-                <p>{msg.content}</p>
+                <div
+                  className={`inline-block p-2 rounded-lg ${
+                    msg.sender === user
+                      ? "bg-blue-500 text-white"
+                      : msg.sender === "system"
+                        ? "bg-gray-100 text-gray-800"
+                        : "bg-gray-200 text-gray-800"
+                  }`}
+                >
+                  {msg.sender !== "system" && (
+                    <p className="font-semibold">{msg.sender}</p>
+                  )}
+                  <p>{msg.content}</p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </ScrollArea>
 
         {/* Input for new message */}
-        <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-200">
+        <form
+          onSubmit={handleSendMessage}
+          className="p-4 border-t border-gray-200"
+        >
           <div className="flex">
             <Input
               type="text"
@@ -90,5 +108,5 @@ export function ChatUi({messages, user, sendMessage}: Props) {
         </form>
       </div>
     </div>
-  )
+  );
 }
