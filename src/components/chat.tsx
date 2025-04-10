@@ -33,7 +33,7 @@ function Chat() {
 
   const handleChangeRoom = (room: string) => {
     joinRoom(room);
-  }
+  };
 
   if (!username || !isConnected) {
     return <div>Loading...</div>;

@@ -1,22 +1,22 @@
-import {Message} from "@/App.tsx";
-import {Card, CardContent} from "@/components/ui/card.tsx";
+import { Message } from "@/App.tsx";
+import { Card, CardContent } from "@/components/ui/card.tsx";
 import ChatMessage from "@/components/ui/chat-message.tsx";
 
 const Messages: Message[] = [
   {
     type: "chat",
     content: "Hello, World!",
-    username: "Pavel"
+    username: "Pavel",
   },
   {
     type: "chat",
     content: "How are you?",
-    username: "John"
+    username: "John",
   },
   {
     type: "system",
-    content: "User has joined the chat"
-  }
+    content: "User has joined the chat",
+  },
 ];
 
 const ChatWindow = () => {

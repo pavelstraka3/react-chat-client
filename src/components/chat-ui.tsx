@@ -20,14 +20,19 @@ export function ChatUi({ messages, user, sendMessage, onChangeRoom }: Props) {
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     // Here you would typically send the message to your backend
-    sendMessage({content: message, room: selectedRoom, sender: user, type: "regular"});
+    sendMessage({
+      content: message,
+      room: selectedRoom,
+      sender: user,
+      type: "regular",
+    });
     setMessage("");
   };
 
   const handleChangeRoom = (room: string) => {
     setSelectedRoom(room);
     onChangeRoom(room);
-  }
+  };
 
   return (
     <div className="flex h-screen bg-gray-100">

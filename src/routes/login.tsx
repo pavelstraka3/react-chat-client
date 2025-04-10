@@ -1,10 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
-import LoginComponent from "@/components/login/loginComponent.tsx";
+import {createFileRoute} from "@tanstack/react-router";
+import AuthComponent from "@/components/login/authComponent.tsx";
 
 export const Route = createFileRoute("/login")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  return <LoginComponent />;
+  return <AuthComponent mode="login"/>;
 }

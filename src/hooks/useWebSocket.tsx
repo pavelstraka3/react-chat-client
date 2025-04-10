@@ -1,5 +1,5 @@
-import {useCallback, useEffect, useRef, useState} from "react";
-import {Message} from "@/lib/types.ts";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Message } from "@/lib/types.ts";
 
 type WebSocketHookProps = {
   url: string;
@@ -56,26 +56,25 @@ const useWebSocket = ({
     };
   }, [url]);
 
-  const sendMessage = useCallback(
-    (message: Partial<Message>) => {
-      if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-        socketRef.current.send(JSON.stringify(message));
-      } else {
-        console.error("WebSocket is not connected");
-      }
-    }, []
-  )
+  const sendMessage = useCallback((message: Partial<Message>) => {
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify(message));
+    } else {
+      console.error("WebSocket is not connected");
+    }
+  }, []);
 
   const joinRoom = useCallback(
     (room: string) => {
       const msg: Partial<Message> = {
         room: room,
         type: "command",
-        content: "join"
-      }
+        content: "join",
+      };
       sendMessage(msg);
-    }, [sendMessage]
-  )
+    },
+    [sendMessage],
+  );
 
   return { isConnected, sendMessage, joinRoom };
 };

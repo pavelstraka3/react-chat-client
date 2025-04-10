@@ -1,17 +1,17 @@
 import React from "react";
-import {Button} from "@/components/ui/button.tsx";
-import {Input} from "@/components/ui/input.tsx";
+import { Button } from "@/components/ui/button.tsx";
+import { Input } from "@/components/ui/input.tsx";
 
 type Props = {
   handleRoomSubmit: (username: string) => void;
-}
+};
 
-const UserInput = ({handleRoomSubmit}: Props) => {
+const UserInput = ({ handleRoomSubmit }: Props) => {
   const [room, setRoom] = React.useState("");
 
   const onRoomSubmit = () => {
     handleRoomSubmit(room);
-  }
+  };
 
   return (
     <div className="flex gap-2">

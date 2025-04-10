@@ -1,17 +1,29 @@
-import {createContext, ReactNode, useContext, useEffect, useState} from "react";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 export type AuthContextType = {
   isAuthenticated: boolean;
   token: string;
   login: ({
-    username,
+    email,
     password,
   }: {
-    username: string;
+    email: string;
+    password: string;
+  }) => Promise<string | null>;
+  register: ({
+    email,
+    password,
+  }: {
+    email: string;
     password: string;
   }) => Promise<string | null>;
   logout: () => void;
-  username?: string;
 };
 
 export type LoginResponse = {
@@ -23,24 +35,22 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState("");
-  const [username, setUsername] = useState("");
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
-    const storedUsername = localStorage.getItem("username");
+    const storedEmail = localStorage.getItem("email");
 
-    if (storedToken && storedUsername) {
+    if (storedToken && storedEmail) {
       setToken(storedToken);
-      setUsername(storedUsername);
       setIsAuthenticated(true);
     }
   }, []);
 
   const login = async ({
-    username,
+    email,
     password,
   }: {
-    username: string;
+    email: string;
     password: string;
   }) => {
     const response = await fetch("http://localhost:8090/login", {
@@ -48,7 +58,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ email, password }),
     });
 
     if (!response.ok) {
@@ -62,19 +72,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // Directly set all states to trigger rerender
     setToken(data.token);
-    setUsername(username);
     setIsAuthenticated(true);
 
     // Optionally store the token in localStorage to persist the session
     localStorage.setItem("token", data.token);
-    localStorage.setItem("username", username);
+    return null;
+  };
+
+  const register = async ({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  }) => {
+    const response = await fetch("http://localhost:8090/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!response.ok) {
+      return "Something went wrong.";
+    }
+
     return null;
   };
 
   const logout = () => {
     setIsAuthenticated(false);
     setToken("");
-    setUsername("");
 
     // Clear from localStorage
     localStorage.removeItem("token");
@@ -82,7 +111,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, token, login, logout, username }}
+      value={{ isAuthenticated, token, login, logout, register }}
     >
       {children}
     </AuthContext.Provider>

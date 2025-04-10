@@ -1,21 +1,21 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
-import Chat from '@/components/chat.tsx'
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import Chat from "@/components/chat.tsx";
 
-export const Route = createFileRoute('/_authenticated/')({
+export const Route = createFileRoute("/_authenticated/")({
   beforeLoad: ({ context }) => {
-    const { isAuthenticated } = context?.auth
+    const { isAuthenticated } = context?.auth;
     if (!isAuthenticated) {
       throw redirect({
-        to: '/login',
+        to: "/login",
         search: {
           redirect: location.href,
         },
-      })
+      });
     }
   },
   component: Index,
-})
+});
 
 function Index() {
-  return <Chat />
+  return <Chat />;
 }
