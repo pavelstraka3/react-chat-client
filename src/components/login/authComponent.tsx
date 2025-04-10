@@ -1,6 +1,6 @@
 "use client";
 
-import {useState} from "react";
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -9,13 +9,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {Input} from "@/components/ui/input";
-import {Button} from "@/components/ui/button";
-import {useAuth} from "@/auth/auth.tsx";
-import {Link, useNavigate} from "@tanstack/react-router";
-import {z} from "zod";
-import {useForm} from "react-hook-form";
-import {zodResolver} from "@hookform/resolvers/zod";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/auth/auth.tsx";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
@@ -31,13 +31,15 @@ const baseSchema = {
 };
 
 // extended schema for registration
-const registerSchema = z.object({
-  ...baseSchema,
-  confirmPassword: z.string().min(3, "Password confirmation is required"),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+const registerSchema = z
+  .object({
+    ...baseSchema,
+    confirmPassword: z.string().min(3, "Password confirmation is required"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 const loginSchema = z.object(baseSchema);
 
@@ -45,10 +47,10 @@ type AuthComponentProps = {
   mode: "login" | "register";
 };
 
-export default function AuthComponent({mode = "login"}: AuthComponentProps) {
+export default function AuthComponent({ mode = "login" }: AuthComponentProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const {login, register} = useAuth();
+  const { login, register } = useAuth();
   const navigate = useNavigate();
 
   const schema = mode === "login" ? loginSchema : registerSchema;
@@ -58,28 +60,28 @@ export default function AuthComponent({mode = "login"}: AuthComponentProps) {
     defaultValues: {
       email: "",
       password: "",
-      ...(mode === "register" ? {confirmPassword: ""} : {}),
+      ...(mode === "register" ? { confirmPassword: "" } : {}),
     },
   });
 
   const onSubmit = async (values: z.infer<typeof schema>) => {
     setIsLoading(true);
 
-    const {email, password} = values;
+    const { email, password } = values;
 
     if (mode === "login") {
-      const errorMessage = await login({email, password});
+      const errorMessage = await login({ email, password });
       if (errorMessage) {
         setError(errorMessage);
       } else {
-        navigate({to: "/"});
+        navigate({ to: "/" });
       }
     } else {
-      const errorMessage = await register({email, password});
+      const errorMessage = await register({ email, password });
       if (errorMessage) {
         setError(errorMessage);
       } else {
-        navigate({to: "/login"});
+        navigate({ to: "/login" });
       }
     }
 
@@ -88,9 +90,10 @@ export default function AuthComponent({mode = "login"}: AuthComponentProps) {
 
   // text state based on mode
   const title = mode === "login" ? "Login" : "Register";
-  const description = mode === "login"
-    ? "Enter your credentials to access your account"
-    : "Create a new account";
+  const description =
+    mode === "login"
+      ? "Enter your credentials to access your account"
+      : "Create a new account";
   const buttonText = mode === "login" ? "Log in" : "Register";
   const loadingText = mode === "login" ? "Logging in..." : "Registering...";
 
@@ -99,9 +102,7 @@ export default function AuthComponent({mode = "login"}: AuthComponentProps) {
       <Card className="w-[350px]">
         <CardHeader>
           <CardTitle>{title}</CardTitle>
-          <CardDescription>
-            {description}
-          </CardDescription>
+          <CardDescription>{description}</CardDescription>
         </CardHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -111,13 +112,13 @@ export default function AuthComponent({mode = "login"}: AuthComponentProps) {
                   <FormField
                     control={form.control}
                     name="email"
-                    render={({field}) => (
+                    render={({ field }) => (
                       <FormItem>
                         <FormLabel>E-mail</FormLabel>
                         <FormControl>
                           <Input placeholder="Enter your e-mail" {...field} />
                         </FormControl>
-                        <FormMessage/>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -126,7 +127,7 @@ export default function AuthComponent({mode = "login"}: AuthComponentProps) {
                   <FormField
                     control={form.control}
                     name="password"
-                    render={({field}) => (
+                    render={({ field }) => (
                       <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
@@ -136,7 +137,7 @@ export default function AuthComponent({mode = "login"}: AuthComponentProps) {
                             {...field}
                           />
                         </FormControl>
-                        <FormMessage/>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -146,7 +147,7 @@ export default function AuthComponent({mode = "login"}: AuthComponentProps) {
                     <FormField
                       control={form.control}
                       name="confirmPassword"
-                      render={({field}) => (
+                      render={({ field }) => (
                         <FormItem>
                           <FormLabel>Confirm Password</FormLabel>
                           <FormControl>
@@ -156,7 +157,7 @@ export default function AuthComponent({mode = "login"}: AuthComponentProps) {
                               {...field}
                             />
                           </FormControl>
-                          <FormMessage/>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -173,7 +174,10 @@ export default function AuthComponent({mode = "login"}: AuthComponentProps) {
                 {mode === "login" ? (
                   <p>
                     Don't have an account?{" "}
-                    <Link to="/register" className="text-primary hover:underline">
+                    <Link
+                      to="/register"
+                      className="text-primary hover:underline"
+                    >
                       Register
                     </Link>
                   </p>

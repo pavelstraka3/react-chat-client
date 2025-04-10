@@ -3,7 +3,12 @@ import Chat from "@/components/chat.tsx";
 
 export const Route = createFileRoute("/_authenticated/")({
   beforeLoad: ({ context }) => {
-    const { isAuthenticated } = context?.auth;
+    if (!context) return;
+
+    const { isAuthenticated, isLoading } = context.auth;
+
+    if (isLoading) return;
+
     if (!isAuthenticated) {
       throw redirect({
         to: "/login",

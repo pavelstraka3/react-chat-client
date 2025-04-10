@@ -8,6 +8,7 @@ import {
 
 export type AuthContextType = {
   isAuthenticated: boolean;
+  isLoading: boolean;
   token: string;
   login: ({
     email,
@@ -34,16 +35,18 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [token, setToken] = useState("");
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
-    const storedEmail = localStorage.getItem("email");
 
-    if (storedToken && storedEmail) {
+    if (storedToken) {
       setToken(storedToken);
       setIsAuthenticated(true);
     }
+
+    setIsLoading(false);
   }, []);
 
   const login = async ({
@@ -111,7 +114,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, token, login, logout, register }}
+      value={{ isAuthenticated, isLoading, token, login, logout, register }}
     >
       {children}
     </AuthContext.Provider>
