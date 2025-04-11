@@ -1,4 +1,4 @@
-import { useState } from "react";
+import {useEffect, useRef, useState} from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -15,11 +15,23 @@ export function ChatUi({ messages, user, sendMessage, onChangeRoom }: Props) {
   const [selectedRoom, setSelectedRoom] = useState("general");
   const [message, setMessage] = useState("");
 
-  const rooms = ["general", "random", "support"];
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const rooms = ["general"];
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the message to your backend
     sendMessage({
       content: message,
       room: selectedRoom,
@@ -63,7 +75,7 @@ export function ChatUi({ messages, user, sendMessage, onChangeRoom }: Props) {
         </div>
 
         {/* Messages */}
-        <ScrollArea className="flex-1 p-4">
+        <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
           {messages
             .filter((m) => m.room === selectedRoom)
             .map((msg) => (
@@ -86,16 +98,17 @@ export function ChatUi({ messages, user, sendMessage, onChangeRoom }: Props) {
                         : "bg-gray-200 text-gray-800"
                   }`}
                 >
+                  <p className="text-sm">{new Date(msg.timestamp).toLocaleString()}</p>
                   {msg.sender !== "system" && (
                     <p className="font-semibold">{msg.sender}</p>
                   )}
                   <p>{msg.content}</p>
                 </div>
+                <div ref={messagesEndRef} />
               </div>
             ))}
         </ScrollArea>
 
-        {/* Input for new message */}
         <form
           onSubmit={handleSendMessage}
           className="p-4 border-t border-gray-200"

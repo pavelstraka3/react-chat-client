@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
-import { ChatUi } from "@/components/chat-ui.tsx";
+import {useEffect, useMemo, useState} from "react";
 import useWebSocket from "@/hooks/useWebSocket.tsx";
-import { useAuth } from "@/auth/auth.tsx";
-import { Message } from "@/lib/types.ts";
+import {useAuth} from "@/auth/auth.tsx";
+import {Message} from "@/lib/types.ts";
+import {ChatUi} from "@/components/chat-ui.tsx";
+import useJWT from "@/hooks/useJWT.tsx";
 
 function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -11,7 +12,8 @@ function Chat() {
     console.log(messages);
   }, [messages]);
 
-  const { username, token } = useAuth();
+  const { token } = useAuth();
+  const { email } = useJWT(token);
 
   const socketUrl = useMemo(
     () => `ws://localhost:8090/ws?token=${token}`,
@@ -35,14 +37,14 @@ function Chat() {
     joinRoom(room);
   };
 
-  if (!username || !isConnected) {
+  if (!email || !isConnected) {
     return <div>Loading...</div>;
   }
 
   return (
     <ChatUi
       messages={messages}
-      user={username}
+      user={email || ""}
       sendMessage={handleSendMessage}
       onChangeRoom={handleChangeRoom}
     />

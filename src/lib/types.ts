@@ -4,6 +4,7 @@ export type Message = {
   sender: string;
   id: string;
   room: string;
+  timestamp: number;
 };
 
 type MessageType = "regular" | "direct" | "invalid" | "command" | "system";
