@@ -13,14 +13,13 @@ function Chat() {
 
   useEffect(() => {
     const getMessages = async () => {
-      if (!email) return;
       const defaultRoom: Room = {
         id: 1,
         name: "general",
       };
 
       const response = await fetch(
-        `http://localhost:8090/messages?roomId=${defaultRoom.id}&sender=${email}`,
+        `http://localhost:8090/messages?roomId=${defaultRoom.id}`,
       );
 
       if (!response.ok) {
@@ -49,7 +48,7 @@ function Chat() {
     };
 
     getMessages();
-  }, [email]);
+  }, []);
 
   const socketUrl = useMemo(
     () => `ws://localhost:8090/ws?token=${token}`,
