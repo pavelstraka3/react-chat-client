@@ -7,4 +7,9 @@ export type Message = {
   timestamp: number;
 };
 
-type MessageType = "regular" | "direct" | "invalid" | "command" | "system";
+export type MessageType = "regular" | "direct" | "invalid" | "command" | "system";
+
+export type Room = {
+  id: number;
+  name: string;
+}

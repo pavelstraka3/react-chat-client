@@ -1,19 +1,55 @@
-import {useEffect, useMemo, useState} from "react";
+import { useEffect, useMemo, useState } from "react";
 import useWebSocket from "@/hooks/useWebSocket.tsx";
-import {useAuth} from "@/auth/auth.tsx";
-import {Message} from "@/lib/types.ts";
-import {ChatUi} from "@/components/chat-ui.tsx";
+import { useAuth } from "@/auth/auth.tsx";
+import { Message, Room } from "@/lib/types.ts";
+import { ChatUi } from "@/components/chat-ui.tsx";
 import useJWT from "@/hooks/useJWT.tsx";
 
 function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
 
-  useEffect(() => {
-    console.log(messages);
-  }, [messages]);
-
   const { token } = useAuth();
   const { email } = useJWT(token);
+
+  useEffect(() => {
+    const getMessages = async () => {
+      if (!email) return;
+      const defaultRoom: Room = {
+        id: 1,
+        name: "general",
+      };
+
+      const response = await fetch(
+        `http://localhost:8090/messages?roomId=${defaultRoom.id}&sender=${email}`,
+      );
+
+      if (!response.ok) {
+        console.error("Failed to fetch messages.");
+        return;
+      }
+
+      const data = await response.json();
+
+      if (!data) return;
+
+      // Temporary solution until the types are the same on the frontend and backend
+      const parsedMessages = data.map((d: any) => {
+        const message: Message = {
+          id: d.id,
+          content: d.content,
+          room: d.room.Name,
+          type: d.type,
+          sender: d.sender,
+          timestamp: d.timestamp,
+        };
+        return message;
+      });
+
+      setMessages([...messages, ...parsedMessages]);
+    };
+
+    getMessages();
+  }, [email]);
 
   const socketUrl = useMemo(
     () => `ws://localhost:8090/ws?token=${token}`,

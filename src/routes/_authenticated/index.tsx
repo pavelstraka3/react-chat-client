@@ -6,6 +6,7 @@ export const Route = createFileRoute("/_authenticated/")({
     if (!context) return;
 
     const { isAuthenticated, isLoading } = context.auth;
+    console.log("authenticated", isAuthenticated, isLoading);
 
     if (isLoading) return;
 
