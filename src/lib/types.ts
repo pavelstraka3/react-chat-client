@@ -3,8 +3,10 @@ export type Message = {
   content: string;
   sender: string;
   id: string;
-  room: string;
+  room: Room;
+  target?: string;
   timestamp: number;
+  command?: string;
 };
 
 export type MessageType =
@@ -17,4 +19,5 @@ export type MessageType =
 export type Room = {
   id: number;
   name: string;
+  created_at?: string;
 };

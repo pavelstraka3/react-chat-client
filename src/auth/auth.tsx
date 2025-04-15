@@ -49,27 +49,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     email: string;
     password: string;
   }) => {
-    const response = await fetch("http://localhost:8090/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (!response.ok) {
-      return "Invalid credentials";
-    }
+      if (!response.ok) {
+        return "Invalid credentials";
+      }
 
-    const data: LoginResponse = await response.json();
-    if (!data.token) {
+      const data: LoginResponse = await response.json();
+      if (!data.token) {
+        return "Something went wrong";
+      }
+
+      setToken(data.token);
+      setStoredToken(data.token);
+
+      return null;
+    } catch (e) {
+      console.error(e);
       return "Something went wrong";
     }
-
-    setToken(data.token);
-    setStoredToken(data.token);
-
-    return null;
   };
 
   const register = async ({
@@ -79,7 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     email: string;
     password: string;
   }) => {
-    const response = await fetch("http://localhost:8090/register", {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

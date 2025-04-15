@@ -24,7 +24,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form.tsx";
-import {Route} from "@/routes/login.tsx";
 
 const baseSchema = {
   email: z.string().email().min(2, "E-mail is required"),

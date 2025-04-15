@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Message } from "@/lib/types.ts";
+import {Message, Room} from "@/lib/types.ts";
 
 type WebSocketHookProps = {
   url: string;
@@ -9,7 +9,7 @@ type WebSocketHookProps = {
 type UseWebSocketReturn = {
   isConnected: boolean;
   sendMessage: (message: Partial<Message>) => void;
-  joinRoom: (room: string) => void;
+  joinRoom: (room: Room) => void;
 };
 
 const useWebSocket = ({
@@ -65,7 +65,7 @@ const useWebSocket = ({
   }, []);
 
   const joinRoom = useCallback(
-    (room: string) => {
+    (room: Room) => {
       const msg: Partial<Message> = {
         room: room,
         type: "command",

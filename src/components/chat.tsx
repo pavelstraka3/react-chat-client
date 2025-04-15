@@ -19,7 +19,7 @@ function Chat() {
       };
 
       const response = await fetch(
-        `http://localhost:8090/messages?roomId=${defaultRoom.id}`,
+        `${import.meta.env.VITE_API_URL}/messages?roomId=${defaultRoom.id}`,
       );
 
       if (!response.ok) {
@@ -32,11 +32,11 @@ function Chat() {
       if (!data) return;
 
       // Temporary solution until the types are the same on the frontend and backend
-      const parsedMessages = data.map((d: any) => {
+      const parsedMessages = data.map((d: Message) => {
         const message: Message = {
           id: d.id,
           content: d.content,
-          room: d.room.Name,
+          room: d.room,
           type: d.type,
           sender: d.sender,
           timestamp: d.timestamp,
@@ -48,10 +48,10 @@ function Chat() {
     };
 
     getMessages();
-  }, []);
+  }, [token]);
 
   const socketUrl = useMemo(
-    () => `ws://localhost:8090/ws?token=${token}`,
+    () => `${import.meta.env.VITE_WS_URL}/ws?token=${token}`,
     [token],
   );
 
@@ -68,12 +68,17 @@ function Chat() {
     sendMessage(message);
   };
 
-  const handleChangeRoom = (room: string) => {
+  const handleChangeRoom = (room: Room) => {
     joinRoom(room);
   };
 
   if (!email || !isConnected) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-600 mb-4" />
+        <p className="text-gray-600 font-medium">Connecting...</p>
+      </div>
+    );
   }
 
   return (

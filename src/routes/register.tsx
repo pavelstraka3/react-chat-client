@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import AuthComponent from "@/components/login/authComponent.tsx";
+import AuthComponent from "@/components/login/auth-component.tsx";
 import { z } from "zod";
 
 export const Route = createFileRoute("/register")({

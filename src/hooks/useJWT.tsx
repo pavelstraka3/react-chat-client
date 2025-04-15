@@ -11,7 +11,6 @@ const useJWT = (token: string | null) => {
   const [tokenExp, setTokenExp] = useState<Date>();
 
   useEffect(() => {
-    console.log("TOKEN", token);
     if (!token) return;
     const decoded = jwtDecode(token) as JwtContent;
 

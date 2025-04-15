@@ -2,23 +2,29 @@ import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Message } from "@/lib/types.ts";
+import {Message, Room} from "@/lib/types.ts";
+import {format, isThisWeek, isToday} from "date-fns";
 
 type Props = {
   messages: Message[];
   user: string;
   sendMessage: (message: Partial<Message>) => void;
-  onChangeRoom: (room: string) => void;
+  onChangeRoom: (room: Room) => void;
 };
 
+const rooms: Room[] = [
+  {
+    id: 0,
+    name: "general"
+  }
+]
+
 export function ChatUi({ messages, user, sendMessage, onChangeRoom }: Props) {
-  const [selectedRoom, setSelectedRoom] = useState("general");
+  const [selectedRoom, setSelectedRoom] = useState<Room>(rooms[0]);
   const [message, setMessage] = useState("");
 
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const rooms = ["general"];
 
   useEffect(() => {
     scrollToBottom();
@@ -41,10 +47,26 @@ export function ChatUi({ messages, user, sendMessage, onChangeRoom }: Props) {
     setMessage("");
   };
 
-  const handleChangeRoom = (room: string) => {
+  const handleChangeRoom = (room: Room) => {
     setSelectedRoom(room);
     onChangeRoom(room);
   };
+
+  const formatMesssageDate = (timestamp: number): string => {
+    const date = new Date(timestamp);
+
+    // If today, show only time
+    if (isToday(date)) {
+      return format(date, "HH:mm");
+    }
+
+    // if is this week, show day and hour
+    if (isThisWeek(date)) {
+      return format(date, "eee HH:mm");
+    }
+
+    return format(date, "d. M. yyyy HH:mm");
+  }
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -54,13 +76,13 @@ export function ChatUi({ messages, user, sendMessage, onChangeRoom }: Props) {
           <h2 className="text-lg font-semibold mb-4">Rooms</h2>
           <ul>
             {rooms.map((room) => (
-              <li key={room}>
+              <li key={room.id}>
                 <Button
                   variant={selectedRoom === room ? "default" : "ghost"}
                   className="w-full justify-start mb-2"
                   onClick={() => handleChangeRoom(room)}
                 >
-                  # {room}
+                  # {room.name}
                 </Button>
               </li>
             ))}
@@ -71,7 +93,7 @@ export function ChatUi({ messages, user, sendMessage, onChangeRoom }: Props) {
       {/* Main chat area */}
       <div className="flex-1 flex flex-col">
         <div className="p-4 border-b border-gray-200">
-          <h1 className="text-xl font-semibold">#{selectedRoom}</h1>
+          <h1 className="text-xl font-semibold">#{selectedRoom.name}</h1>
         </div>
 
         {/* Messages */}
@@ -99,7 +121,7 @@ export function ChatUi({ messages, user, sendMessage, onChangeRoom }: Props) {
                   }`}
                 >
                   <p className="text-sm">
-                    {new Date(msg.timestamp).toLocaleString()}
+                    {formatMesssageDate(msg.timestamp)}
                   </p>
                   {msg.sender !== "system" && (
                     <p className="font-semibold">{msg.sender}</p>
