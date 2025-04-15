@@ -14,7 +14,8 @@ export type MessageType =
   | "direct"
   | "invalid"
   | "command"
-  | "system";
+  | "system"
+  | "typing";
 
 export type Room = {
   id: number;

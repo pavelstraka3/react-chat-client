@@ -7,6 +7,7 @@ import useJWT from "@/hooks/useJWT.tsx";
 
 function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [typingUsers, setTypingUsers] = useState<Map<string, number>>(new Map());
 
   const { token } = useAuth();
   const { email } = useJWT(token);
@@ -27,24 +28,11 @@ function Chat() {
         return;
       }
 
-      const data = await response.json();
+      const data = await response.json() as Message[];
 
       if (!data) return;
 
-      // Temporary solution until the types are the same on the frontend and backend
-      const parsedMessages = data.map((d: Message) => {
-        const message: Message = {
-          id: d.id,
-          content: d.content,
-          room: d.room,
-          type: d.type,
-          sender: d.sender,
-          timestamp: d.timestamp,
-        };
-        return message;
-      });
-
-      setMessages([...messages, ...parsedMessages]);
+      setMessages([...messages, ...data]);
     };
 
     getMessages();
@@ -56,10 +44,51 @@ function Chat() {
   );
 
   const handleIncomingMessage = (message: Message) => {
+    if (message.type === "typing") {
+      const newTypingUsers = new Map(typingUsers);
+
+      if (message.content === "is typing..." && message.sender) {
+        newTypingUsers.set(message.sender, Date.now())
+      } else if (message.sender) {
+        newTypingUsers.delete(message.sender);
+      }
+
+      setTypingUsers(newTypingUsers);
+      return;
+    }
+
+    // First check if message isn't already there
+    const messageExists = messages.some((msg) => msg.id === message.id);
+
+    if (messageExists) {
+      return;
+    }
+
     setMessages((prevMessages) => [...prevMessages, message]);
   };
 
-  const { isConnected, sendMessage, joinRoom } = useWebSocket({
+  // Cleanup users that didn't send typing update
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTypingUsers(prevTypingUsers => {
+        const newTypingUsers = new Map(prevTypingUsers);
+        const now = Date.now();
+
+        // Remove users who haven't updated their typing status for 3 seconds
+        for (const [user, timestamp] of newTypingUsers.entries()) {
+          if (now - timestamp > 3000) {
+            newTypingUsers.delete(user);
+          }
+        }
+
+        return newTypingUsers;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const { isConnected, sendMessage, joinRoom, sendTypingStatus } = useWebSocket({
     url: socketUrl,
     onMessageRecieved: handleIncomingMessage,
   });
@@ -71,6 +100,10 @@ function Chat() {
   const handleChangeRoom = (room: Room) => {
     joinRoom(room);
   };
+
+  const handleChangeTypingStatus = (typingStatus: boolean) => {
+    sendTypingStatus(typingStatus);
+  }
 
   if (!email || !isConnected) {
     return (
@@ -87,6 +120,8 @@ function Chat() {
       user={email || ""}
       sendMessage={handleSendMessage}
       onChangeRoom={handleChangeRoom}
+      sendTypingStatus={handleChangeTypingStatus}
+      typingUsers={typingUsers}
     />
   );
 }

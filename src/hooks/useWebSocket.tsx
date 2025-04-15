@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import {Message, Room} from "@/lib/types.ts";
+import { Message, Room } from "@/lib/types.ts";
 
 type WebSocketHookProps = {
   url: string;
@@ -10,6 +10,7 @@ type UseWebSocketReturn = {
   isConnected: boolean;
   sendMessage: (message: Partial<Message>) => void;
   joinRoom: (room: Room) => void;
+  sendTypingStatus: (isTyping: boolean) => void;
 };
 
 const useWebSocket = ({
@@ -31,7 +32,6 @@ const useWebSocket = ({
     socket.onmessage = (event) => {
       console.log("Message recieved: ", event.data);
       if (onMessageRecieved) {
-        // parse the event.data to a Message object
         try {
           const message = JSON.parse(event.data) as Message;
           onMessageRecieved(message);
@@ -76,7 +76,18 @@ const useWebSocket = ({
     [sendMessage],
   );
 
-  return { isConnected, sendMessage, joinRoom };
+  const sendTypingStatus = useCallback(
+    (isTyping: boolean) => {
+      const msg: Partial<Message> = {
+        type: "typing",
+        content: isTyping ? "true" : "false",
+      };
+      sendMessage(msg);
+    },
+    [sendMessage],
+  );
+
+  return { isConnected, sendMessage, joinRoom, sendTypingStatus };
 };
 
 export default useWebSocket;
