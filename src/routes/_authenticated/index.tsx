@@ -5,10 +5,7 @@ export const Route = createFileRoute("/_authenticated/")({
   beforeLoad: ({ context }) => {
     if (!context) return;
 
-    const { isAuthenticated, isLoading } = context.auth;
-    console.log("authenticated", isAuthenticated, isLoading);
-
-    if (isLoading) return;
+    const { isAuthenticated } = context.auth;
 
     if (!isAuthenticated) {
       throw redirect({

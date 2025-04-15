@@ -6,11 +6,13 @@ type JwtContent = {
   exp: number;
 };
 
-const useJWT = (token: string) => {
+const useJWT = (token: string | null) => {
   const [email, setEmail] = useState<string>();
   const [tokenExp, setTokenExp] = useState<Date>();
 
   useEffect(() => {
+    console.log("TOKEN", token);
+    if (!token) return;
     const decoded = jwtDecode(token) as JwtContent;
 
     if (decoded.email) {

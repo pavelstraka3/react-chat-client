@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/auth/auth.tsx";
-import { Link, useNavigate } from "@tanstack/react-router";
+import {Link, useNavigate, useRouter} from "@tanstack/react-router";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,6 +24,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form.tsx";
+import {Route} from "@/routes/login.tsx";
 
 const baseSchema = {
   email: z.string().email().min(2, "E-mail is required"),
@@ -51,6 +52,7 @@ export default function AuthComponent({ mode = "login" }: AuthComponentProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const { login, register } = useAuth();
+  const router = useRouter();
   const navigate = useNavigate();
 
   const schema = mode === "login" ? loginSchema : registerSchema;
@@ -74,14 +76,16 @@ export default function AuthComponent({ mode = "login" }: AuthComponentProps) {
       if (errorMessage) {
         setError(errorMessage);
       } else {
-        navigate({ to: "/" });
+        await router.invalidate();
+        await navigate({ to: "/chat" });
       }
     } else {
       const errorMessage = await register({ email, password });
       if (errorMessage) {
         setError(errorMessage);
       } else {
-        navigate({ to: "/login" });
+        await router.invalidate();
+        await navigate({ to: "/login" });
       }
     }
 

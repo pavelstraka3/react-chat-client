@@ -1,15 +1,8 @@
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { createContext, ReactNode, useContext, useState } from "react";
 
 export type AuthContextType = {
   isAuthenticated: boolean;
-  isLoading: boolean;
-  token: string;
+  token: string | null;
   login: ({
     email,
     password,
@@ -33,21 +26,21 @@ export type LoginResponse = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function getStoredToken() {
+  return localStorage.getItem("token");
+}
+
+function setStoredToken(token: string | null) {
+  if (token) {
+    localStorage.setItem("token", token);
+  } else {
+    localStorage.removeItem("token");
+  }
+}
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [token, setToken] = useState("");
-
-  useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-
-    if (storedToken) {
-      setToken(storedToken);
-      setIsAuthenticated(true);
-    }
-
-    setIsLoading(false);
-  }, []);
+  const [token, setToken] = useState<string | null>(getStoredToken());
+  const isAuthenticated = !!token;
 
   const login = async ({
     email,
@@ -73,12 +66,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return "Something went wrong";
     }
 
-    // Directly set all states to trigger rerender
     setToken(data.token);
-    setIsAuthenticated(true);
+    setStoredToken(data.token);
 
-    // Optionally store the token in localStorage to persist the session
-    localStorage.setItem("token", data.token);
     return null;
   };
 
@@ -105,16 +95,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = () => {
-    setIsAuthenticated(false);
     setToken("");
-
-    // Clear from localStorage
-    localStorage.removeItem("token");
+    setStoredToken(null);
   };
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, isLoading, token, login, logout, register }}
+      value={{ isAuthenticated, token, login, logout, register }}
     >
       {children}
     </AuthContext.Provider>

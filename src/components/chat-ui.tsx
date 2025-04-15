@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from "react";
+import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -98,7 +98,9 @@ export function ChatUi({ messages, user, sendMessage, onChangeRoom }: Props) {
                         : "bg-gray-200 text-gray-800"
                   }`}
                 >
-                  <p className="text-sm">{new Date(msg.timestamp).toLocaleString()}</p>
+                  <p className="text-sm">
+                    {new Date(msg.timestamp).toLocaleString()}
+                  </p>
                   {msg.sender !== "system" && (
                     <p className="font-semibold">{msg.sender}</p>
                   )}
