@@ -71,12 +71,13 @@ export default function AuthComponent({ mode = "login" }: AuthComponentProps) {
     const { email, password } = values;
 
     if (mode === "login") {
-      const errorMessage = await login({ email, password });
-      if (errorMessage) {
-        setError(errorMessage);
-      } else {
+      const result = await login({ email, password });
+
+      if (result.success) {
         await router.invalidate();
         await navigate({ to: "/chat" });
+      } else {
+        setError(result.error || "Something went wrong");
       }
     } else {
       const errorMessage = await register({ email, password });

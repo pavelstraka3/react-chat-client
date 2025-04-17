@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Message, Room } from "@/lib/types.ts";
 import { format, isThisWeek, isToday } from "date-fns";
+import {Send} from "lucide-react";
 
 type Props = {
   messages: Message[];
@@ -31,6 +32,7 @@ export function ChatUi({
 }: Props) {
   const [selectedRoom, setSelectedRoom] = useState<Room>(rooms[0]);
   const [message, setMessage] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -114,7 +116,9 @@ export function ChatUi({
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar for room selection */}
-      <div className="w-64 bg-white border-r border-gray-200">
+      <div
+        className={`w-64 sm:block ${sidebarOpen ? "block" : "hidden"} bg-white border-r border-gray-200`}
+      >
         <div className="p-4">
           <h2 className="text-lg font-semibold mb-4">Rooms</h2>
           <ul>
@@ -134,8 +138,14 @@ export function ChatUi({
       </div>
 
       {/* Main chat area */}
-      <div className="flex-1 flex flex-col">
-        <div className="p-4 border-b border-gray-200">
+      <div className="flex-1 flex flex-col w-full sm:w-auto">
+        <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+          <button
+            className="sm:hidden p-2 text-gray-600"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+          >
+            ☰
+          </button>
           <h1 className="text-xl font-semibold">#{selectedRoom.name}</h1>
         </div>
 
@@ -204,7 +214,10 @@ export function ChatUi({
               onChange={handleInputChange}
               className="flex-1 mr-2"
             />
-            <Button type="submit">Send</Button>
+            <Button type="submit">
+              <Send className="h-4 w-4 sm:hidden block" />
+              <span className="sm:block hidden">Send</span>
+            </Button>
           </div>
         </form>
       </div>

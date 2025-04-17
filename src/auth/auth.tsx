@@ -9,7 +9,7 @@ export type AuthContextType = {
   }: {
     email: string;
     password: string;
-  }) => Promise<string | null>;
+  }) => Promise<LoginResult>;
   register: ({
     email,
     password,
@@ -22,6 +22,11 @@ export type AuthContextType = {
 
 export type LoginResponse = {
   token: string;
+};
+
+type LoginResult = {
+  error: string | null;
+  success: boolean;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -48,7 +53,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }: {
     email: string;
     password: string;
-  }) => {
+  }): Promise<LoginResult> => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
         method: "POST",
@@ -59,21 +64,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       if (!response.ok) {
-        return "Invalid credentials";
+        return { error: "Invalid credentials", success: false };
       }
 
       const data: LoginResponse = await response.json();
       if (!data.token) {
-        return "Something went wrong";
+        return { error: "Something went wrong", success: false };
       }
 
       setToken(data.token);
       setStoredToken(data.token);
 
-      return null;
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      return { error: null, success: true };
     } catch (e) {
       console.error(e);
-      return "Something went wrong";
+      return { error: "Something went wrong", success: false };
     }
   };
 
