@@ -177,7 +177,7 @@ export function ChatUi({
                     <p className="text-sm">
                       {formatMesssageDate(msg.timestamp)}
                     </p>
-                    <p className="font-semibold">{msg.sender}</p>
+                    <p className="font-semibold">{msg.sender.split("@")[0]}</p>
                     <p>{msg.content}</p>
                   </div>
                 </div>
