@@ -78,6 +78,7 @@ const useWebSocket = ({
 
   const sendTypingStatus = useCallback(
     (isTyping: boolean) => {
+      console.log("Sending typing status: ", isTyping);
       const msg: Partial<Message> = {
         type: "typing",
         content: isTyping ? "true" : "false",

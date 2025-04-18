@@ -7,7 +7,9 @@ import useJWT from "@/hooks/useJWT.tsx";
 
 function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [typingUsers, setTypingUsers] = useState<Map<string, number>>(new Map());
+  const [typingUsers, setTypingUsers] = useState<Map<string, number>>(
+    new Map(),
+  );
 
   const { token } = useAuth();
   const { email } = useJWT(token);
@@ -28,7 +30,7 @@ function Chat() {
         return;
       }
 
-      const data = await response.json() as Message[];
+      const data = (await response.json()) as Message[];
 
       if (!data) return;
 
@@ -48,7 +50,7 @@ function Chat() {
       const newTypingUsers = new Map(typingUsers);
 
       if (message.content === "is typing..." && message.sender) {
-        newTypingUsers.set(message.sender, Date.now())
+        newTypingUsers.set(message.sender, Date.now());
       } else if (message.sender) {
         newTypingUsers.delete(message.sender);
       }
@@ -70,7 +72,7 @@ function Chat() {
   // Cleanup users that didn't send typing update
   useEffect(() => {
     const interval = setInterval(() => {
-      setTypingUsers(prevTypingUsers => {
+      setTypingUsers((prevTypingUsers) => {
         const newTypingUsers = new Map(prevTypingUsers);
         const now = Date.now();
 
@@ -88,10 +90,12 @@ function Chat() {
     return () => clearInterval(interval);
   }, []);
 
-  const { isConnected, sendMessage, joinRoom, sendTypingStatus } = useWebSocket({
-    url: socketUrl,
-    onMessageRecieved: handleIncomingMessage,
-  });
+  const { isConnected, sendMessage, joinRoom, sendTypingStatus } = useWebSocket(
+    {
+      url: socketUrl,
+      onMessageRecieved: handleIncomingMessage,
+    },
+  );
 
   const handleSendMessage = (message: Partial<Message>) => {
     sendMessage(message);
@@ -103,7 +107,7 @@ function Chat() {
 
   const handleChangeTypingStatus = (typingStatus: boolean) => {
     sendTypingStatus(typingStatus);
-  }
+  };
 
   if (!email || !isConnected) {
     return (

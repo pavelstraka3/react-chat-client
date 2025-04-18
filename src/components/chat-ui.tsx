@@ -17,7 +17,7 @@ type Props = {
 
 const rooms: Room[] = [
   {
-    id: 0,
+    id: 1,
     name: "general",
   },
 ];
@@ -33,7 +33,10 @@ export function ChatUi({
   const [selectedRoom, setSelectedRoom] = useState<Room>(rooms[0]);
   const [message, setMessage] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const hasStoppedTypingRef = useRef(false);
 
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -90,28 +93,35 @@ export function ChatUi({
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setMessage(e.target.value);
 
-    if (e.target.value.length === 1 && !typingTimeoutRef.current) {
+    if (!isTyping) {
+      setIsTyping(true);
       sendTypingStatus(true);
+      hasStoppedTypingRef.current = false;
     }
 
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
-
-    typingTimeoutRef.current = setTimeout(() => {
-      sendTypingStatus(false);
-      typingTimeoutRef.current = null;
-    }, 3000);
+    // if (typingTimeoutRef.current) {
+    //   clearTimeout(typingTimeoutRef.current);
+    // }
+    //
+    // typingTimeoutRef.current = setTimeout(() => {
+    //   if (!hasStoppedTypingRef.current) {
+    //     setIsTyping(false);
+    //     sendTypingStatus(false);
+    //     hasStoppedTypingRef.current = true;
+    //   }
+    // }, 2000);
   };
 
-  useEffect(() => {
-    return () => {
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-        sendTypingStatus(false);
-      }
-    };
-  }, [sendTypingStatus]);
+  // useEffect(() => {
+  //   return () => {
+  //     if (typingTimeoutRef.current) {
+  //       clearTimeout(typingTimeoutRef.current);
+  //       if (isTyping) {
+  //         sendTypingStatus(false);
+  //       }
+  //     }
+  //   };
+  // }, [sendTypingStatus, isTyping]);
 
   return (
     <div className="flex h-screen bg-gray-100">
